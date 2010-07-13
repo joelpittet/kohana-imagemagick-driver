@@ -1,0 +1,10 @@
+This is a port from http://github.com/javierav/kohana-imagemagick
+
+With some fixes and removed the core Kohana Image Module.
+
+Required:
+Kohana 3.x
+http://github.com/kohana/kohana
+
+Kohana Image Module
+http://github.com/kohana/image
