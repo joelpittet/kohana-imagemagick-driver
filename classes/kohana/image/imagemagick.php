@@ -33,7 +33,10 @@ class Kohana_Image_ImageMagick extends Image {
 
 		if ($status)
 		{
-			throw new Kohana_Exception('ImageMagick is not installed in :path, check your configuration', array(':path'=>Image_ImageMagick::$_imagemagick));
+			throw new Kohana_Exception('ImageMagick is not installed in :path, check your configuration. status :status', 
+			array(':path'=>Image_ImageMagick::$_imagemagick,
+			':status'=>$status)
+			);
 		}
 
 		return Image_ImageMagick::$_checked = TRUE;
@@ -50,7 +53,7 @@ class Kohana_Image_ImageMagick extends Image {
 		// Load ImageMagick path from config
 		Image_ImageMagick::$_imagemagick = Kohana::Config('imagemagick')->path;
 
-		if (! is_dir(Image_ImageMagick::$_imagemagick) )
+		if (! is_dir(Image_ImageMagick::$_imagemagick))
 		{
 			throw new Kohana_Exception('ImageMagick path is not a valid directory, check your configuration');
 		}
@@ -71,7 +74,7 @@ class Kohana_Image_ImageMagick extends Image {
 	 */
 	public function __destruct()
 	{
-		if ( ! is_null($this->filetmp) )
+		if (isset($this->filetmp) && file_exists($this->filetmp))
 		{
 			// Free all resources
 			unlink($this->filetmp);
@@ -80,7 +83,7 @@ class Kohana_Image_ImageMagick extends Image {
 
 	protected function _do_resize($width, $height)
 	{
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create a temporary file to store the new image
 		$fileout = tempnam(Upload::$default_directory, '');
@@ -94,7 +97,7 @@ class Kohana_Image_ImageMagick extends Image {
 		if ( ! $status )
 		{
 			// Delete old tmp file if exist
-			if ( ! is_null($this->filetmp) )
+			if (isset($this->filetmp) && file_exists($this->filetmp))
 			{
 				unlink($this->filetmp);
 			}
@@ -112,10 +115,10 @@ class Kohana_Image_ImageMagick extends Image {
 
 	protected function _do_crop($width, $height, $offset_x, $offset_y)
 	{
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create a temporary file to store the new image
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= ' -quality 100 -crop '.escapeshellarg($width).'x'.escapeshellarg($height).'+'.escapeshellarg($offset_x).'+'.escapeshellarg($offset_y);
@@ -126,7 +129,7 @@ class Kohana_Image_ImageMagick extends Image {
 		if ( ! $status )
 		{
 			// Delete old tmp file if exist
-			if ( ! is_null($this->filetmp) )
+			if (isset($this->filetmp) && file_exists($this->filetmp))
 			{
 				unlink($this->filetmp);
 			}
@@ -147,10 +150,10 @@ class Kohana_Image_ImageMagick extends Image {
 
 	protected function _do_rotate($degrees)
 	{
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create a temporary file to store the new image
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= ' -quality 100 -matte -background none -rotate '.escapeshellarg($degrees);
@@ -161,7 +164,7 @@ class Kohana_Image_ImageMagick extends Image {
 		if ( ! $status )
 		{
 			// Delete old tmp file if exist
-			if ( ! is_null($this->filetmp) )
+			if (isset($this->filetmp) && file_exists($this->filetmp))
 			{
 				unlink($this->filetmp);
 			}
@@ -186,10 +189,10 @@ class Kohana_Image_ImageMagick extends Image {
 	{
 		$flip_command = ($direction === Image::HORIZONTAL) ? '-flop': '-flip';
 
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create a temporary file to store the new image
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= ' -quality 100 '.$flip_command;
@@ -200,7 +203,7 @@ class Kohana_Image_ImageMagick extends Image {
 		if ( ! $status )
 		{
 			// Delete old tmp file if exist
-			if ( ! is_null($this->filetmp) )
+			if (isset($this->filetmp) && file_exists($this->filetmp))
 			{
 				unlink($this->filetmp);
 			}
@@ -222,10 +225,10 @@ class Kohana_Image_ImageMagick extends Image {
 		// Amount should be in the range of 0.0 to 3.0
 		$amount = ($amount * 3.0) / 100;
 
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create a temporary file to store the new image
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= ' -quality 100 -sharpen 0x'.$amount;
@@ -236,7 +239,7 @@ class Kohana_Image_ImageMagick extends Image {
 		if ( ! $status )
 		{
 			// Delete old tmp file if exist
-			if ( ! is_null($this->filetmp) )
+			if (isset($this->filetmp) && file_exists($this->filetmp))
 			{
 				unlink($this->filetmp);
 			}
@@ -260,7 +263,7 @@ class Kohana_Image_ImageMagick extends Image {
 		// Convert an opacity range of 0-100 to 255-0
 	$opacity = round(abs(($opacity * 255 / 100)));
 
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create the reflect image from current image
 		$reflect_image = Image::factory($filein, 'ImageMagick');
@@ -272,7 +275,7 @@ class Kohana_Image_ImageMagick extends Image {
 		$reflect_image->flip(Image::VERTICAL);
 
 		// Create alpha channel
-		$alpha = tempnam(sys_get_temp_dir(), '');
+		$alpha = tempnam(Upload::$default_directory, '');
 
 		$gradient = ($fade_in) ? "rgb(0,0,0)-rgb($opacity,$opacity,$opacity)" : "rgb($opacity,$opacity,$opacity)-rgb(0,0,0)";
 
@@ -288,7 +291,7 @@ class Kohana_Image_ImageMagick extends Image {
 		}
 
 		// Apply alpha channel
-		$tmpfile = tempnam(sys_get_temp_dir(), '');
+		$tmpfile = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($reflect_image->get_file_path()).' '.escapeshellarg($alpha);
 		$command .= ' -quality 100 -alpha Off -compose Copy_Opacity -composite';
@@ -302,7 +305,7 @@ class Kohana_Image_ImageMagick extends Image {
 		}
 
 		// Merge image with their reflex
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein).' '.escapeshellarg($tmpfile);
 		$command .= ' -quality 100 -append ';
@@ -321,7 +324,7 @@ class Kohana_Image_ImageMagick extends Image {
 		unlink($tmpfile);
 
 		// Delete old tmp file if exist
-		if ( ! is_null($this->filetmp) )
+		if (isset($this->filetmp) && file_exists($this->filetmp))
 		{
 			unlink($this->filetmp);
 		}
@@ -339,10 +342,10 @@ class Kohana_Image_ImageMagick extends Image {
 
 	protected function _do_watermark(Image $image, $offset_x, $offset_y, $opacity)
 	{
-		$filein = ( ! is_null($this->filetmp)) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		// Create temporary file to store the watermark image
-		$watermark = tempnam(sys_get_temp_dir(), '');
+		$watermark = tempnam(Upload::$default_directory, '');
 		$fp = fopen($watermark, 'wb');
 
 		if ( ! fwrite($fp, $image->render()))
@@ -351,7 +354,7 @@ class Kohana_Image_ImageMagick extends Image {
 		}
 
 		// Merge watermark with image
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('composite');
 		$command .= ' -quality 100 -dissolve '.escapeshellarg($opacity).'% -geometry +'.escapeshellarg($offset_x).'+'.escapeshellarg($offset_y);
@@ -370,7 +373,7 @@ class Kohana_Image_ImageMagick extends Image {
 		unlink($watermark);
 
 		// Delete old tmp file if exist
-		if ( ! is_null($this->filetmp) )
+		if (isset($this->filetmp) && file_exists($this->filetmp))
 		{
 			unlink($this->filetmp);
 		}
@@ -385,9 +388,9 @@ class Kohana_Image_ImageMagick extends Image {
 	{
 		$opacity = $opacity / 100;
 
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
-		$fileout = tempnam(sys_get_temp_dir(), '');
+		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= " -quality 100 -background ".escapeshellarg("rgba($r, $g, $b, $opacity)").' -flatten';
@@ -398,7 +401,7 @@ class Kohana_Image_ImageMagick extends Image {
 		if ( ! $status )
 		{
 			// Delete old tmp file if exist
-			if ( ! is_null($this->filetmp) )
+			if (isset($this->filetmp) && file_exists($this->filetmp))
 			{
 				unlink($this->filetmp);
 			}
@@ -420,7 +423,7 @@ class Kohana_Image_ImageMagick extends Image {
 	protected function _do_save($file, $quality)
 	{
 		// If tmp image file not exist, use original
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= (isset($quality)) ? ' -quality '.escapeshellarg($quality) : '';
@@ -438,10 +441,10 @@ class Kohana_Image_ImageMagick extends Image {
 
 	protected function _do_render($type, $quality)
 	{
-		$tmpfile = tempnam(sys_get_temp_dir(), '');
+		$tmpfile = tempnam(Upload::$default_directory, '');
 
 		// If tmp image file not exist, use original
-		$filein = ( ! is_null($this->filetmp) ) ? $this->filetmp : $this->file;
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
 		$command .= (isset($quality)) ? ' -quality '.escapeshellarg($quality) : '';
@@ -486,7 +489,7 @@ class Kohana_Image_ImageMagick extends Image {
 	 * @throws  Kohana_Exception
 	 * @return  object  file info
 	 */
-	private function get_info($file)
+	protected function get_info($file)
 	{
 		try
 		{
@@ -526,6 +529,51 @@ class Kohana_Image_ImageMagick extends Image {
 	public function get_file_path()
 	{
 		return $this->filetmp;
+	}
+
+
+
+
+	/**
+	 * Create an empty image with the given width and height.
+	 *
+	 * @param   integer   image width
+	 * @param   integer   image height
+	 * @return  resource
+	 */
+	protected function _create($width, $height)
+	{
+		
+		$filein = (isset($this->filetmp)) ? $this->filetmp : $this->file;
+
+		$fileout = tempnam(Upload::$default_directory, '');
+
+		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
+		$command .= ' -quality 100 -size '.escapeshellarg($width).'x'.escapeshellarg($height).' -flatten';
+		$command .= ' '.escapeshellarg('PNG:'.$fileout);
+
+		exec($command, $response, $status);
+
+		if ( ! $status )
+		{
+			// Delete old tmp file if exist
+			if (isset($this->filetmp) && file_exists($this->filetmp))
+			{
+				unlink($this->filetmp);
+			}
+
+			// Get the image information
+			$info = $this->get_info($fileout);
+
+			// Update image data
+			$this->filetmp = $fileout;
+			$this->width = $info->width;
+			$this->height = $info->height;
+
+			return TRUE;
+		}
+
+		return FALSE;
 	}
 
 } // End Kohana_Image_ImageMagic
