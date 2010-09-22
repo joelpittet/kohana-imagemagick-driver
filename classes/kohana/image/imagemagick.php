@@ -31,7 +31,7 @@ class Kohana_Image_ImageMagick extends Image {
 	{
 		exec(Image_ImageMagick::get_command('convert'), $response, $status);
 
-		if ($status)
+		if ( ! count($response))
 		{
 			throw new Kohana_Exception('ImageMagick is not installed in :path, check your configuration. status :status', 
 			array(':path'=>Image_ImageMagick::$_imagemagick,
