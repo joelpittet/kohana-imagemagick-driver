@@ -21,28 +21,6 @@ class Kohana_Image_ImageMagick extends Image {
 	protected $filetmp;
 
 	/**
-	 * Checks if ImageMagick is enabled and bundled. Bundled GD is required for some
-	 * methods to work.
-	 *
-	 * @throws  Kohana_Exception
-	 * @return  boolean
-	 */
-	public static function check()
-	{
-		exec(Image_ImageMagick::get_command('convert'), $response, $status);
-
-		if ($status)
-		{
-			throw new Kohana_Exception('ImageMagick is not installed in :path, check your configuration. status :status', 
-			array(':path'=>Image_ImageMagick::$_imagemagick,
-			':status'=>$status)
-			);
-		}
-
-		return Image_ImageMagick::$_checked = TRUE;
-	}
-
-	/**
 	 * Runs [Image_ImageMagick::check] and loads the image.
 	 *
 	 * @return  void
@@ -51,17 +29,11 @@ class Kohana_Image_ImageMagick extends Image {
 	public function __construct($file)
 	{
 		// Load ImageMagick path from config
-		Image_ImageMagick::$_imagemagick = Kohana::Config('imagemagick')->path;
+		Image_ImageMagick::$_imagemagick = Kohana::$config->load('imagemagick')->path;
 
 		if (! is_dir(Image_ImageMagick::$_imagemagick))
 		{
 			throw new Kohana_Exception('ImageMagick path is not a valid directory, check your configuration');
-		}
-
-		if ( ! Image_ImageMagick::$_checked)
-		{
-			// Run the install check
-			Image_ImageMagick::check();
 		}
 
 		parent::__construct($file);
