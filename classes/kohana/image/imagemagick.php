@@ -89,7 +89,7 @@ class Kohana_Image_ImageMagick extends Image {
 		$fileout = tempnam(Upload::$default_directory, '');
 
 		$command = Image_ImageMagick::get_command('convert').' '.escapeshellarg($filein);
-		$command .= ' -quality 100 -geometry '.escapeshellarg($width).'x'.escapeshellarg($height).'\!';
+		$command .= ' -quality 100 -coalesce -geometry '.escapeshellarg($width).'x'.escapeshellarg($height).'\!';
 		$command .= ' '.escapeshellarg($fileout);
 
 		exec($command, $response, $status);
